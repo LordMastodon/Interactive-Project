@@ -1,64 +1,33 @@
 package electricdrill.interactiveproject.wificommunication;
 
-import com.illposed.osc.OSCPort;
-import com.illposed.osc.OSCPortIn;
-import com.illposed.osc.OSCPortOut;
-import org.junit.*;
-import org.junit.rules.ExpectedException;
+import javax.xml.crypto.Data;
+import java.net.DatagramSocket;
 
 public class Port {
 
-    private static final long WAIT_FOR_SOCKET_CLOSE = 30;
+    private final DatagramSocket socket;
+    private final int port;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public static final int DEFAULT_SC_OSC_PORT = 57110;
+    public static final int DEFAULT_SC_LANG_OSC_PORT = 57120;
 
-    private OSCPortOut sender;
-    private OSCPortIn reciever;
-
-    @Before
-    public void setUp() throws Exception {
-        sender = new OSCPortOut();
-        reciever = new OSCPortIn(OSCPort.defaultSCOSCPort());
+    public Port(DatagramSocket socket, int port) {
+        this.socket = socket;
+        this.port = port;
     }
 
-    @After
-    public void tearDown() throws Exception {
-        reciever.close();
-        sender.close();
-
-        Thread.sleep(WAIT_FOR_SOCKET_CLOSE);
+    public static int defaultSCOSCPort() {
+        return DEFAULT_SC_OSC_PORT;
     }
 
-    @Test
-    public void testSocketClose() throws Exception {
-        reciever.close();
-        sender.close();
-
-        Thread.sleep(WAIT_FOR_SOCKET_CLOSE);
-
-        sender = new OSCPortOut();
-        reciever = new OSCPortIn(OSCPort.defaultSCOSCPort());
+    public static int defaultSCLangOSCPort() {
+        return DEFAULT_SC_LANG_OSC_PORT;
     }
 
-    @Test
-    public void testSocketAutoClose() throws Exception {
-        reciever = null;
-        sender = null;
+    public DatagramSocket getSocket() { return socket; }
 
-        System.gc();
-        Thread.sleep(WAIT_FOR_SOCKET_CLOSE);
+    public int getPort() { return port; }
 
-        sender = new OSCPortOut();
-        reciever = new OSCPortIn(OSCPort.defaultSCOSCPort());
-    }
-
-    @Test
-    public void testPorts() throws Exception {
-        Assert.assertEquals("Bad default SuperCollider OSC port",
-                57110, OSCPort.defaultSCOSCPort());
-        Assert.assertEquals("Bad default SuperCollider Language OSC port",
-                );
-    }
+    public void close() { socket.close(); }
 
 }
